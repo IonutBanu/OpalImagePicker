@@ -14,7 +14,7 @@ open class OpalImagePickerCollectionViewLayout: UICollectionViewLayout {
     /// Estimated Image Size. Used as a minimum image size to determine how many images should be go across to cover the width. You can override for different display preferences. Assumed to be greater than 0.
     open var estimatedImageSize: CGFloat {
         guard let collectionView = self.collectionView else { return 80 }
-        return collectionView.traitCollection.horizontalSizeClass == .regular ? 160 : 80
+        return collectionView.traitCollection.horizontalSizeClass == .regular ? 160 : 90
     }
     
     var sizeOfItem: CGFloat = 0
@@ -84,28 +84,26 @@ open class OpalImagePickerCollectionViewLayout: UICollectionViewLayout {
         guard let collectionView = self.collectionView else { return }
         let numberOfItemsAcross = Int(collectionView.bounds.width/estimatedImageSize)
         
+        let numberOfSpaces: CGFloat = CGFloat(numberOfItemsAcross + 1)
+        let spacing: CGFloat = 8.0
         guard numberOfItemsAcross > 0 else { return }
-        let widthOfItem = collectionView.bounds.width/CGFloat(numberOfItemsAcross)
+        let widthOfItem = (collectionView.bounds.width - numberOfSpaces * spacing) / CGFloat(numberOfItemsAcross)
         sizeOfItem = widthOfItem
         
         cellLayoutInfo = [:]
-        
-        var yPosition: CGFloat = 0
         
         for section in 0..<collectionView.numberOfSections {
             for item in 0..<collectionView.numberOfItems(inSection: section) {
                 let indexPath = IndexPath(item: item, section: section)
                 let layoutAttributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
                 let column = item % numberOfItemsAcross
+                let row = item / numberOfItemsAcross
                 
-                let xPosition = CGFloat(column) * widthOfItem
+                let xPosition = (CGFloat(column) * (widthOfItem + spacing)) + spacing
+                let yPosition = (CGFloat(row) * (widthOfItem + spacing)) + spacing
+                
                 layoutAttributes.frame = CGRect(x: xPosition, y: yPosition, width: widthOfItem, height: widthOfItem)
                 cellLayoutInfo[indexPath] = layoutAttributes
-                
-                //When at the end of row increment y position.
-                if column == numberOfItemsAcross-1 {
-                    yPosition += widthOfItem
-                }
             }
         }
     }
